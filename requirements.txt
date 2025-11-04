@@ -1,0 +1,7 @@
+playwright
+pytest
+pyyaml
+pillow
+openpyxl
+requests
+pandas

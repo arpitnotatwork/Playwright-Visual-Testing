@@ -1,0 +1,61 @@
+# Base URL of the site to crawl
+base_url: "https://aekot-nextjs.vercel.app/"
+contact_url: "https://aekot-nextjs.vercel.app/contact"
+
+# Optional buttons to click on page load
+buttons:
+  continue_button_name: "Continue"
+
+# Routes to check
+routes:
+  - /
+  - /about/
+  - /our-team/
+  - /case-studies
+  - /case-studies/milaap-nonprofit-cloud
+  - /case-studies/coverdesk-sales-cloud
+  - /case-studies/greenway-sales-cloud
+  - /case-studies/redwood-health-cloud
+  - /case-studies/diabetes-management-health-cloud
+  - /case-studies/universal-relocation-service-cloud
+  - /case-studies/redibs-saleforce
+  - /blogs
+  - /contact
+  - /careers
+  - /careers/apply
+  - /healthcloud
+  - /talent
+  - /services
+  - /services/agentforce-consulting-services
+  - /services/salesforce-consulting-services
+  - /services/salesforce-implementation-integration
+  - /services/salesforce-support-managed-services
+  - /services/salesforce-training-adoption
+  - /services/data-migration-management
+
+# Browser type to use: chromium, firefox, webkit
+browser: chromium
+
+# Page timeout in milliseconds
+timeout: 60000
+
+# Maximum number of pages to crawl
+max_pages: 1000
+
+# Enable crawling all links found on pages
+enable_full_crawl: true
+
+# Domains or URL patterns to skip while crawling
+skip_domains:
+  - facebook.com
+  - linkedin.com
+  - instagram.com
+  - twitter.com
+  - youtube.com
+  - "mailto:"
+  - "tel:"
+
+# Report file to save broken links
+report_file: "reports/broken_links_report.xlsx"
+
+
