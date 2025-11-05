@@ -1,6 +1,6 @@
 # Base URL of the site to crawl
-base_url: "https://aekot-nextjs.vercel.app/"
-contact_url: "https://aekot-nextjs.vercel.app/contact"
+base_url: ""   #  <------------Add your base URL here
+
 
 # Optional buttons to click on page load
 buttons:
@@ -9,29 +9,8 @@ buttons:
 # Routes to check
 routes:
   - /
-  - /about/
-  - /our-team/
-  - /case-studies
-  - /case-studies/milaap-nonprofit-cloud
-  - /case-studies/coverdesk-sales-cloud
-  - /case-studies/greenway-sales-cloud
-  - /case-studies/redwood-health-cloud
-  - /case-studies/diabetes-management-health-cloud
-  - /case-studies/universal-relocation-service-cloud
-  - /case-studies/redibs-saleforce
-  - /blogs
-  - /contact
-  - /careers
-  - /careers/apply
-  - /healthcloud
-  - /talent
-  - /services
-  - /services/agentforce-consulting-services
-  - /services/salesforce-consulting-services
-  - /services/salesforce-implementation-integration
-  - /services/salesforce-support-managed-services
-  - /services/salesforce-training-adoption
-  - /services/data-migration-management
+  - 
+  - 
 
 # Browser type to use: chromium, firefox, webkit
 browser: chromium
