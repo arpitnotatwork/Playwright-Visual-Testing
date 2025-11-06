@@ -1,0 +1,3 @@
+URL: https://the-internet.herokuapp.com/status_codes/404
+Status: 404 - Not Found
+Result: Fail

@@ -28,7 +28,7 @@ SCROLL_TO_LOAD = config.get("scroll_to_load", True)
 # -----------------------------
 # Screenshot folders
 # -----------------------------
-SCREENSHOT_MODE = config.get("screenshot_mode", "new")  # 'old' or 'new'
+SCREENSHOT_MODE = config.get("screenshot_mode", "old")  # 'old' or 'new'
 SCREENSHOT_DIR = os.path.join(PROJECT_ROOT, f"screenshots/{SCREENSHOT_MODE}")
 DIFF_DIR = os.path.join(PROJECT_ROOT, "screenshots/diff")
 

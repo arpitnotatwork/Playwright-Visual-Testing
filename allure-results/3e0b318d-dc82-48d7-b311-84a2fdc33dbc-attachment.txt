@@ -1,0 +1,2 @@
+Total links checked: 71
+Broken links: 11

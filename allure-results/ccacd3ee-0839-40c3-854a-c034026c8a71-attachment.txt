@@ -1,0 +1,2 @@
+⚠️ 11 broken links found! See report: reports/broken_links_report_20251106_151119.xlsx
+📁 Excel report generated successfully. Marking test as passed.
