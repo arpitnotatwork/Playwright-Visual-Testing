@@ -1,3 +1,0 @@
-URL: https://the-internet.herokuapp.com/basic_auth
-Status: 401 - Unauthorized
-Result: Fail

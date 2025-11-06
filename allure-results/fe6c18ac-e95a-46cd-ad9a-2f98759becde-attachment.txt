@@ -1,3 +1,0 @@
-URL: https://the-internet.herokuapp.com/challenging_dom
-Status: 200 - OK
-Result: Pass

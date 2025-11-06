@@ -1,3 +1,0 @@
-URL: https://the-internet.herokuapp.com/dynamic_loading/2
-Status: 200 - OK
-Result: Pass

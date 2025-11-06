@@ -24,15 +24,15 @@ ROUTES = config["routes"]
 BUTTONS = config.get("buttons", {})
 HEADLESS = config.get("headless", True)
 SCROLL_TO_LOAD = config.get("scroll_to_load", True)
+VIEWPORTS = config.get("viewports", [{"width": 1920, "height": 1080, "name": "default"}])
+SCREENSHOT_MODE = config.get("screenshot_mode", "old")  # 'old' or 'new'
 
 # -----------------------------
 # Screenshot folders
 # -----------------------------
-SCREENSHOT_MODE = config.get("screenshot_mode", "old")  # 'old' or 'new'
-SCREENSHOT_DIR = os.path.join(PROJECT_ROOT, f"screenshots/{SCREENSHOT_MODE}")
+BASE_SCREENSHOT_DIR = os.path.join(PROJECT_ROOT, f"screenshots/{SCREENSHOT_MODE}")
 DIFF_DIR = os.path.join(PROJECT_ROOT, "screenshots/diff")
-
-os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+os.makedirs(BASE_SCREENSHOT_DIR, exist_ok=True)
 os.makedirs(DIFF_DIR, exist_ok=True)
 
 
@@ -60,72 +60,94 @@ def scroll_to_bottom(page):
 
 
 # -----------------------------
-# Test: Take screenshots
+# Take screenshots for all viewports
 # -----------------------------
 def test_take_screenshots():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=HEADLESS)
-        page = browser.new_page()
-        base = BasePage(page)
 
-        for route in ROUTES:
-            url = BASE_URL + route
-            filename = route.strip("/").replace("/", "_") or "home"
-            filename = filename.rstrip("_") + ".png"
-            screenshot_path = os.path.join(SCREENSHOT_DIR, filename)
+        for vp in VIEWPORTS:
+            name = vp.get("name", f"{vp['width']}x{vp['height']}")
+            viewport_dir = os.path.join(BASE_SCREENSHOT_DIR, name)
+            os.makedirs(viewport_dir, exist_ok=True)
 
-            print(f"[{SCREENSHOT_MODE.upper()}] Taking screenshot: {url} → {screenshot_path}")
+            print(f"\n🖥️  Viewport: {name} ({vp['width']}x{vp['height']})")
 
-            # Navigate
-            base.goto(url)
-            page.wait_for_load_state("networkidle")
-            page.wait_for_timeout(1000)
+            context = browser.new_context(viewport={"width": vp["width"], "height": vp["height"]})
+            page = context.new_page()
+            base = BasePage(page)
 
-            # Optional "Continue" or cookie button click
-            continue_button = BUTTONS.get("continue_button_name")
-            if continue_button:
-                try:
-                    page.get_by_role("button", name=continue_button).click(timeout=2000)
-                    page.wait_for_timeout(500)
-                except:
-                    print(f"Button '{continue_button}' not found on {url}")
+            for route in ROUTES:
+                url = BASE_URL + route
+                filename = route.strip("/").replace("/", "_") or "home"
+                filename = filename.rstrip("_") + ".png"
+                screenshot_path = os.path.join(viewport_dir, filename)
 
-            # Scroll to bottom (for lazy content)
-            if SCROLL_TO_LOAD:
-                try:
-                    scroll_to_bottom(page)
-                    page.wait_for_timeout(1000)
-                except Exception as e:
-                    print(f"⚠️ Scroll failed on {url}: {e}")
+                print(f"[{SCREENSHOT_MODE.upper()}] Taking screenshot: {url} → {screenshot_path}")
 
-            # Take full-page screenshot
-            base.take_screenshot(screenshot_path)
+                # Navigate
+                base.goto(url)
+                page.wait_for_load_state("networkidle")
+                page.wait_for_timeout(1000)
+
+                # Optional "Continue" button
+                continue_button = BUTTONS.get("continue_button_name")
+                if continue_button:
+                    try:
+                        page.get_by_role("button", name=continue_button).click(timeout=2000)
+                        page.wait_for_timeout(500)
+                    except:
+                        print(f"Button '{continue_button}' not found on {url}")
+
+                # Scroll if needed
+                if SCROLL_TO_LOAD:
+                    try:
+                        scroll_to_bottom(page)
+                        page.wait_for_timeout(1000)
+                    except Exception as e:
+                        print(f"⚠️ Scroll failed on {url}: {e}")
+
+                # Take full-page screenshot
+                base.take_screenshot(screenshot_path)
+
+            context.close()
 
         browser.close()
 
 
 # -----------------------------
-# Test: Compare screenshots
+# Compare screenshots for all viewports
 # -----------------------------
 def test_compare_screenshots():
     old_dir = os.path.join(PROJECT_ROOT, "screenshots/old")
     new_dir = os.path.join(PROJECT_ROOT, "screenshots/new")
 
-    results = batch_compare(old_dir, new_dir, DIFF_DIR)
-    different_files = [f for f, same in results.items() if not same]
+    print("\n📸 Comparing screenshots for all viewports...")
+    total_diffs = 0
 
-    print("\n📊 Screenshot Comparison Summary")
-    print("---------------------------------")
-    print(f"Total compared: {len(results)}")
-    print(f"Different: {len(different_files)}")
+    for vp in VIEWPORTS:
+        name = vp.get("name", f"{vp['width']}x{vp['height']}")
+        old_vp_dir = os.path.join(old_dir, name)
+        new_vp_dir = os.path.join(new_dir, name)
+        vp_diff_dir = os.path.join(DIFF_DIR, name)
+        os.makedirs(vp_diff_dir, exist_ok=True)
 
-    if different_files:
-        print("\n⚠️ Differences found:")
-        for file in different_files:
-            print(f" - {file}")
+        if not os.path.exists(old_vp_dir) or not os.path.exists(new_vp_dir):
+            print(f"⚠️ Skipping viewport '{name}' — screenshots missing.")
+            continue
 
-    missing_in_new = [f for f in os.listdir(old_dir) if f not in results]
-    for file in missing_in_new:
-        print(f"❌ Missing in new screenshots: {file}")
+        print(f"\n🔍 Comparing viewport: {name}")
+        results = batch_compare(old_vp_dir, new_vp_dir, vp_diff_dir)
+        different_files = [f for f, same in results.items() if not same]
 
-    assert not different_files, f"{len(different_files)} differences found! Check {DIFF_DIR}."
+        print(f"  Total compared: {len(results)}")
+        print(f"  Differences: {len(different_files)}")
+
+        if different_files:
+            total_diffs += len(different_files)
+            print("  ⚠️ Differences found:")
+            for file in different_files:
+                print(f"   - {file}")
+
+    assert total_diffs == 0, f"❌ {total_diffs} visual differences found! Check {DIFF_DIR}."
+    print("✅ All screenshots match across viewports.")

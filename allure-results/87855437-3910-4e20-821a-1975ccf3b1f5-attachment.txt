@@ -1,3 +1,0 @@
-URL: https://the-internet.herokuapp.com/download_secure
-Status: 401 - Unauthorized
-Result: Fail
