@@ -60,7 +60,32 @@ def scroll_to_bottom(page):
 
 
 # -----------------------------
-# Take screenshots for all viewports
+# Helper: set language cookie
+# -----------------------------
+def set_language_cookie(context, route):
+    """Detect language from route and set cookie accordingly."""
+    domain = "playwright.dev"
+
+    if route.startswith("/python/"):
+        lang = "python"
+    elif route.startswith("/java/"):
+        lang = "java"
+    elif route.startswith("/dotnet/"):
+        lang = "dotnet"
+    else:
+        lang = "nodejs"  # Default for docs without prefix
+
+    try:
+        context.add_cookies([
+            {"name": "preferredLang", "value": lang, "domain": domain, "path": "/"}
+        ])
+        print(f"🌐 Language set to: {lang} for route: {route}")
+    except Exception as e:
+        print(f"⚠️ Failed to set language cookie for {route}: {e}")
+
+
+# -----------------------------
+# Test: Take screenshots (multi-viewport)
 # -----------------------------
 def test_take_screenshots():
     with sync_playwright() as p:
@@ -73,11 +98,34 @@ def test_take_screenshots():
 
             print(f"\n🖥️  Viewport: {name} ({vp['width']}x{vp['height']})")
 
-            context = browser.new_context(viewport={"width": vp["width"], "height": vp["height"]})
-            page = context.new_page()
-            base = BasePage(page)
-
             for route in ROUTES:
+                # ✅ Detect and set correct language before creating context
+                domain = "playwright.dev"
+
+                if route.startswith("/python/"):
+                    lang = "python"
+                elif route.startswith("/java/"):
+                    lang = "java"
+                elif route.startswith("/dotnet/"):
+                    lang = "dotnet"
+                else:
+                    lang = "nodejs"
+
+                # Create new isolated context for this route
+                context = browser.new_context(
+                    viewport={"width": vp["width"], "height": vp["height"]}
+                )
+
+                # Add the cookie BEFORE any page is created
+                context.add_cookies([
+                    {"name": "preferredLang", "value": lang, "domain": domain, "path": "/"}
+                ])
+                print(f"🌐 Language set to: {lang} for route: {route}")
+
+                # Now create page inside this context
+                page = context.new_page()
+                base = BasePage(page)
+
                 url = BASE_URL + route
                 filename = route.strip("/").replace("/", "_") or "home"
                 filename = filename.rstrip("_") + ".png"
@@ -85,38 +133,44 @@ def test_take_screenshots():
 
                 print(f"[{SCREENSHOT_MODE.upper()}] Taking screenshot: {url} → {screenshot_path}")
 
-                # Navigate
-                base.goto(url)
-                page.wait_for_load_state("networkidle")
-                page.wait_for_timeout(1000)
+                try:
+                    # Navigate and wait for full load
+                    base.goto(url)
+                    page.wait_for_load_state("networkidle")
+                    page.wait_for_timeout(1000)
 
-                # Optional "Continue" button
-                continue_button = BUTTONS.get("continue_button_name")
-                if continue_button:
-                    try:
-                        page.get_by_role("button", name=continue_button).click(timeout=2000)
-                        page.wait_for_timeout(500)
-                    except:
-                        print(f"Button '{continue_button}' not found on {url}")
+                    # Optional button click
+                    continue_button = BUTTONS.get("continue_button_name")
+                    if continue_button:
+                        try:
+                            page.get_by_role("button", name=continue_button).click(timeout=2000)
+                            page.wait_for_timeout(500)
+                        except:
+                            print(f"Button '{continue_button}' not found on {url}")
 
-                # Scroll if needed
-                if SCROLL_TO_LOAD:
-                    try:
-                        scroll_to_bottom(page)
-                        page.wait_for_timeout(1000)
-                    except Exception as e:
-                        print(f"⚠️ Scroll failed on {url}: {e}")
+                    # Scroll for lazy load
+                    if SCROLL_TO_LOAD:
+                        try:
+                            scroll_to_bottom(page)
+                            page.wait_for_timeout(1000)
+                        except Exception as e:
+                            print(f"⚠️ Scroll failed on {url}: {e}")
 
-                # Take full-page screenshot
-                base.take_screenshot(screenshot_path)
+                    # Full page screenshot
+                    base.take_screenshot(screenshot_path)
 
-            context.close()
+                except Exception as e:
+                    print(f"❌ Error on {url}: {e}")
+
+                # Close context after each route
+                context.close()
 
         browser.close()
 
 
+
 # -----------------------------
-# Compare screenshots for all viewports
+# Test: Compare screenshots across all viewports
 # -----------------------------
 def test_compare_screenshots():
     old_dir = os.path.join(PROJECT_ROOT, "screenshots/old")

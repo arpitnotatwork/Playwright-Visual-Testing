@@ -1,5 +1,5 @@
 # Base URL of the site to crawl
-base_url: "https://playwright.dev/python"   #  <------------Add your base URL here
+base_url: "https://www.google.com/"   #  <------------Add your base URL here
 
 
 # Optional buttons to click on page load
@@ -8,22 +8,14 @@ buttons:
 
 # Routes to check
 routes:
-  - /
-  - /docs/intro
-  - /dotnet/
-  - /dotnet/docs/intro
-  - /java/
-  - /java/docs/intro
-  - /python/
-  - /python/community/ambassadors
-  - /python/community/feature-videos
-  - /python/community/learn-videos
-  - /python/community/welcome
-  - /python/docs/api/class-playwright
-  - /python/docs/codegen
-  - /python/docs/debug
-  - /python/docs/intro
-  - /python/docs/trace-viewer-intro
+ - /
+ - /advanced_search
+ - /imghp
+ - /intl/en_in/ads/
+ - /preferences
+ - /services/
+ - /setprefs
+
  
 
 # Browser type to use: chromium, firefox, webkit
