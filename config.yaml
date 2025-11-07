@@ -1,5 +1,5 @@
 # Base URL of the site to crawl
-base_url: "https://www.google.com/"   #  <------------Add your base URL here
+base_url: "https://ultimateqa.com/automation"   #  <------------Add your base URL here
 
 
 # Optional buttons to click on page load
@@ -8,14 +8,20 @@ buttons:
 
 # Routes to check
 routes:
- - /
- - /advanced_search
- - /imghp
- - /intl/en_in/ads/
- - /preferences
- - /services/
- - /setprefs
-
+ - /      
+ - /about/
+ - /automation
+ - /automation/
+ - /best-selenium-webdriver-resources/
+ - /blog/
+ - /complicated-page
+ - /consulting/
+ - /contact/
+ - /fake-landing-page
+ - /fake-pricing-page
+ - /filling-out-forms/
+ - /sample-application-lifecycle-sprint-1/
+ - /simple-html-elements-for-automation/
  
 
 # Browser type to use: chromium, firefox, webkit
